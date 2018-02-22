@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { routerTransition } from '../../router.animations';
 
+declare var $:any;
+
 @Component({
     selector: 'app-dashboard',
     templateUrl: './dashboard.component.html',
@@ -52,7 +54,70 @@ export class DashboardComponent implements OnInit {
         );
     }
 
-    ngOnInit() {}
+    ngOnInit() {
+
+        $.ajax({
+            url: "https://miguelcbrm.github.io/xml.xml",
+            dataType: "xml",
+            complete: (result, status) => {
+                console.log("Result: ", result);
+                var myXML = result.responseXML;
+                var x = myXML.getElementsByTagName("Producto");
+                var txt = "";
+                txt += "<table class='table' border='1'> <thead> <tr> <th scope='col'>ID</th> <th scope='col'>Marca</th> <th scope='col'>Precio</th> <th scope='col'>Existencias</th></tr></thead>";
+                var i;
+                for(i = 0; i < x.length; i++){
+
+                    if (x[i].getElementsByTagName("Marca")[0].childNodes[0].nodeValue == "FAG"){
+                        var y = document.createElement("TR");
+                        y.setAttribute("id", i);
+            
+                        document.getElementById("tablaproductos").appendChild(y);
+            
+                        var idCol = document.createElement("TD");
+                        var setId = document.createTextNode(x[i].getElementsByTagName("ID")[0].childNodes[0].nodeValue);
+                        idCol.appendChild(setId);
+            
+                        var marcaCol = document.createElement("TD");
+                        var setMarca = document.createTextNode(x[i].getElementsByTagName("Marca")[0].childNodes[0].nodeValue);
+                        marcaCol.appendChild(setMarca);
+            
+                        var precioCol = document.createElement("TD");
+                        var setPrecio = document.createTextNode(x[i].getElementsByTagName("Precio")[0].childNodes[0].nodeValue);
+                        precioCol.appendChild(setPrecio);
+
+                        var existenciaCol = document.createElement("TD");
+                        var setExistencia = document.createTextNode(x[i].getElementsByTagName("Existencia")[0].childNodes[0].nodeValue);
+                        existenciaCol.appendChild(setExistencia);
+        
+            
+                        document.getElementById(i).appendChild(idCol);
+                        document.getElementById(i).appendChild(marcaCol); 
+                        document.getElementById(i).appendChild(precioCol);
+                        document.getElementById(i).appendChild(existenciaCol);
+                    }
+
+                    /*
+                    txt += "<tr><td>" +
+                           x[i].getElementsByTagName("ID")[0].childNodes[0].nodeValue +
+                        "</td><td>" + x[i].getElementsByTagName("Marca")[0].childNodes[0].nodeValue +
+                        "</td><td>" + x[i].getElementsByTagName("Precio")[0].childNodes[0].nodeValue + 
+                        "</td><td>" + x[i].getElementsByTagName("Existencia")[0].childNodes[0].nodeValue + "</td></tr>";
+                    */
+                }
+                
+                //document.getElementById("inventory_xml").innerHTML = txt;	
+                console.log("TABLE XML UPDATED");
+            },
+            error: (jqXHR, status, error) => {
+                console.log("jqXHR: ", jqXHR);
+                console.log("status: ", status);
+                console.log("error: ", error);
+            }
+        });
+
+
+    }
 
     public closeAlert(alert: any) {
         const index: number = this.alerts.indexOf(alert);
